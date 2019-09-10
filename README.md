@@ -1,5 +1,8 @@
 # Take Until
 
+[![Actions Status](https://github.com/hdevalke/take-until/workflows/Rust/badge.svg)](https://github.com/hdevalke/take-until/actions)
+
+
 This crate adds the `take_until` method as an extension for iterators.
 
 ## Example

@@ -5,9 +5,9 @@
 
 This crate adds the `take_until` method as an extension for iterators.
 
-## Example
+## Examples
 
-Parsing the next base 128 varint from a byte slice.
+### Parsing the next base 128 varint from a byte slice.
 
 ```rust
 use take_until::TakeUntilExt;
@@ -22,3 +22,25 @@ let int: u32 = varint
      });
 assert_eq!(300, int);
 ```
+
+### Take Until vs Take While (from Standard Library)
+```rust
+use take_until::TakeUntilExt;
+
+fn main() {
+    let items = [1, 2, 3, 4, -5, -6, -7, -8];
+    let filtered_take_while = items
+        .into_iter()
+        .take_while(|x| *x > 0)
+        .collect::<Vec<i32>>();
+    let filtered_take_until = items
+        .into_iter()
+        .take_until(|x| *x <= 0)
+        .collect::<Vec<i32>>();
+    assert_eq!([1, 2, 3, 4], filtered_take_while.as_slice());
+    assert_eq!([1, 2, 3, 4, -5], filtered_take_until.as_slice());
+}
+```
+
+## MSRV
+The MSRV is `1.56.1` stable.

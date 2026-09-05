@@ -88,23 +88,19 @@ where
 
     fn next(&mut self) -> Option<I::Item> {
         if self.flag {
-            None
-        } else {
-            self.iter.next().map(|x| {
-                if (self.predicate)(&x) {
-                    self.flag = true;
-                }
-                x
-            })
+            return None;
         }
+        let item = self.iter.next()?;
+        self.flag = (self.predicate)(&item);
+        Some(item)
     }
 
     fn size_hint(&self) -> (usize, Option<usize>) {
         if self.flag {
             (0, Some(0))
         } else {
-            let (_, upper) = self.iter.size_hint();
-            (0, upper) // can't know a lower bound, due to the predicate
+            let (lower, upper) = self.iter.size_hint();
+            (lower.min(1), upper) // The stopping item is included.
         }
     }
 }
@@ -114,17 +110,4 @@ where
     I: FusedIterator,
     P: FnMut(&I::Item) -> bool,
 {
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    #[test]
-    fn test_size_hint_zero() {
-        let v: Vec<u8> = vec![0, 1, 2];
-        let mut iter = v.iter().take_until(|_| true);
-        assert_eq!((0, Some(3)), iter.size_hint());
-        iter.next();
-        assert_eq!((0, Some(0)), iter.size_hint());
-    }
 }

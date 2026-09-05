@@ -1,8 +1,10 @@
 //! This crate adds the [`TakeUntilExt::take_until`] method as an extension for
 //! iterators.
 //!
+//! The library supports `no_std` without allocation or feature flags.
+//!
 //! # MSRV
-//! The MSRV is `1.56.1` stable.
+//! The MSRV is `1.85.0` stable.
 //!
 //! # Example
 //!
@@ -39,6 +41,7 @@
 //! assert_eq!([1, 2, 3, 4, -5], filtered_take_until.as_slice());
 //! ```
 
+#![no_std]
 #![deny(clippy::all, clippy::cargo, clippy::nursery)]
 #![deny(missing_docs)]
 #![deny(missing_debug_implementations)]

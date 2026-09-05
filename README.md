@@ -42,5 +42,12 @@ fn main() {
 }
 ```
 
+The library supports `no_std` without allocation or feature flags.
+
 ## MSRV
-The MSRV is `1.56.1` stable.
+The MSRV is `1.85.0` stable.
+
+## Performance
+
+The inclusive stopping item lets `size_hint()` guarantee one item whenever the
+underlying iterator guarantees a nonempty remainder.

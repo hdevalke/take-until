@@ -17,6 +17,8 @@ jobs:
         run: rustup toolchain install ${{ matrix.toolchain }} --profile minimal
       - name: Test and doctest
         run: cargo +${{ matrix.toolchain }} test --verbose
+      - name: Check benchmark compatibility
+        run: cargo +${{ matrix.toolchain }} check --benches
 
   checks:
     runs-on: ubuntu-latest

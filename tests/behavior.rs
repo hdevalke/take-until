@@ -119,3 +119,68 @@ fn fused_bound_and_borrowed_fold() {
     assert_eq!(iter.next(), None);
     assert_eq!(calls.get(), 3);
 }
+
+// Check the experimental optimization so benchmark comparisons remain valid.
+#[path = "../benches/support/mod.rs"]
+mod support;
+
+#[test]
+fn candidate_matches_default_fold_and_next() {
+    fn consume<I: Iterator<Item = u8>>(mut iter: I, prefix: usize, fold: bool) -> u32 {
+        for _ in 0..prefix {
+            iter.next();
+        }
+        let add = |acc: u32, x: u8| acc.wrapping_mul(7).wrapping_add(u32::from(x));
+        if fold {
+            iter.fold(10, add)
+        } else {
+            let mut acc = 10;
+            for x in iter {
+                acc = add(acc, x);
+            }
+            acc
+        }
+    }
+    for non_fused_input in [false, true] {
+        for stop in [0, 1, 2, 4, 9] {
+            for prefix in 0..=5 {
+                let run = |candidate: bool, fold: bool| {
+                    let events = RefCell::new(Vec::new());
+                    let mut values = [
+                        Some(0),
+                        Some(1),
+                        if non_fused_input { None } else { Some(2) },
+                        Some(3),
+                        Some(4),
+                        None,
+                    ]
+                    .into_iter();
+                    let mut source = core::iter::from_fn(|| values.next().flatten());
+                    let predicate = |x: &u8| {
+                        events.borrow_mut().push(('p', *x));
+                        *x == stop
+                    };
+                    // inspect records consumption after predicate evaluation.
+                    let record = |x: &u8| events.borrow_mut().push(('c', *x));
+                    let result = if candidate {
+                        // inspect delegates fold to the experimental implementation.
+                        consume(
+                            support::Candidate::new(source.by_ref(), predicate).inspect(record),
+                            prefix,
+                            fold,
+                        )
+                    } else {
+                        consume(
+                            source.by_ref().take_until(predicate).inspect(record),
+                            prefix,
+                            fold,
+                        )
+                    };
+                    (result, events.into_inner(), source.next())
+                };
+                assert_eq!(run(true, true), run(false, true));
+                assert_eq!(run(true, true), run(true, false));
+            }
+        }
+    }
+}

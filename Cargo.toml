@@ -12,3 +12,7 @@ keywords = ["iterator", "take", "until"]
 categories = ["rust-patterns"]
 
 [dependencies]
+
+[[bench]]
+name = "fold"
+harness = false

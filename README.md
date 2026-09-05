@@ -51,3 +51,7 @@ The MSRV is `1.85.0` stable.
 
 The inclusive stopping item lets `size_hint()` guarantee one item whenever the
 underlying iterator guarantees a nonempty remainder.
+
+Run `cargo bench --bench fold` to compare the default `fold()` with an experimental
+override delegating to the underlying iterator's `try_fold()`. The override is
+kept outside the library because the timing results are inconclusive. See [benchmark methodology and results](benches/README.md).

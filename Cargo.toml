@@ -1,6 +1,6 @@
 [package]
 name = "take-until"
-version = "0.2.0"
+version = "0.3.0"
 authors = ["Hannes De Valkeneer <hannes@de-valkeneer.be>"]
 edition = "2024"
 rust-version = "1.85"

@@ -2,20 +2,35 @@ name: Rust
 
 on: [push, pull_request]
 
+permissions:
+  contents: read
+
 jobs:
-  build:
-
+  test:
     runs-on: ubuntu-latest
-
+    strategy:
+      matrix:
+        toolchain: ["1.85.0", stable]
     steps:
-    - uses: actions/checkout@v1
-    - name: Build
-      run: cargo build --verbose
-    - name: Run tests
-      run: cargo test --verbose
-    - name: Check doc
-      run: cargo doc --verbose
-    - name: Check clippy
-      run: cargo clippy --all-targets
-    - name: Check fmt
-      run: cargo fmt -- --check
+      - uses: actions/checkout@v6
+      - name: Install toolchain
+        run: rustup toolchain install ${{ matrix.toolchain }} --profile minimal
+      - name: Test and doctest
+        run: cargo +${{ matrix.toolchain }} test --verbose
+
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Install stable and components
+        run: rustup toolchain install stable --profile minimal --component clippy,rustfmt --target thumbv7em-none-eabi
+      - name: Check docs
+        run: cargo +stable doc --no-deps
+        env:
+          RUSTDOCFLAGS: -D warnings
+      - name: Check clippy
+        run: cargo +stable clippy --all-targets -- -D warnings
+      - name: Check formatting
+        run: cargo +stable fmt -- --check
+      - name: Check no_std
+        run: cargo +stable check --lib --target thumbv7em-none-eabi

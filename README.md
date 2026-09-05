@@ -47,6 +47,29 @@ The library supports `no_std` without allocation or feature flags.
 ## MSRV
 The MSRV is `1.85.0` stable.
 
+## Publishing
+
+Releases are published to crates.io when a `v*` tag is pushed. The tag must
+exactly match `v` followed by the version in `Cargo.toml`. Publishing runs only
+after all Rust CI checks and a packaging dry run pass.
+
+The workflow uses [trusted publishing](https://crates.io/docs/trusted-publishing)
+to obtain a temporary token; no crates.io API token secret is needed in GitHub.
+
+To release:
+
+1. Update `version` in `Cargo.toml` to a new, unpublished version.
+2. Commit the version bump and push the commit containing the publishing workflow.
+3. Create and push the matching tag, replacing `X.Y.Z` below with that version:
+
+   ```sh
+   git tag -a vX.Y.Z -m "chore: release take-until X.Y.Z"
+   git push origin vX.Y.Z
+   ```
+
+Monitor the Publish workflow in GitHub Actions. The current manifest version is
+`0.2.0`; choose a new version before releasing instead of reusing an existing tag.
+
 ## Performance
 
 The inclusive stopping item lets `size_hint()` guarantee one item whenever the
